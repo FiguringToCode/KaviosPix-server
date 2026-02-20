@@ -67,7 +67,7 @@ app.get('/auth/google/callback', async (req, res) => {
             client_secret: process.env.GOOGLE_CLIENT_SECRET,
             code,
             grant_type: "authorization_code",
-            redirect_uri: `${process.env.BACKEND_URL || `http://localhost:${PORT}`}/auth/google/callback`
+            redirect_uri: `${process.env.BACKEND_URL}/auth/google/callback`
         })
 
         const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', params, {
@@ -103,7 +103,7 @@ app.get('/auth/google/callback', async (req, res) => {
         })
 
         // Redirect to frontend
-        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`)
+        return res.redirect(`${process.env.FRONTEND_URL}/profile`)
         
     } catch (error) {
         console.error(error.response?.data || error.message)
