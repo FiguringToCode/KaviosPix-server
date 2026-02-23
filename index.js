@@ -14,7 +14,6 @@ const PORT = process.env.PORT || 4000
 
 
 // CORS configuration
-const cors = require('cors')
 const corsOptions = {
     origin: "*",
     credentials: true,
