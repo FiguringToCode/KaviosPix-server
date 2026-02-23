@@ -118,8 +118,7 @@ app.get('/auth/google/callback', async (req, res) => {
         })
 
         // Redirect to frontend
-        console.log(`${process.env.FRONTEND_URL}/profile`)
-        return res.redirect(`${process.env.FRONTEND_URL}/user/profile`)
+        return res.redirect(`${process.env.FRONTEND_URL}/profile`)
         
     } catch (error) {
         console.error(error.response?.data || error.message)
