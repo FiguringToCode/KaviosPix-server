@@ -119,7 +119,7 @@ app.get('/auth/google/callback', async (req, res) => {
 
         // Redirect to frontend
         console.log(`${process.env.FRONTEND_URL}/profile`)
-        return res.redirect(`${process.env.FRONTEND_URL}/profile`)
+        return res.redirect(`${process.env.FRONTEND_URL}/profile?token=${jwtToken}`)
         
     } catch (error) {
         console.error(error.response?.data || error.message)
