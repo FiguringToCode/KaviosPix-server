@@ -12,16 +12,28 @@ initializeDatabase()
 const app = express()
 const PORT = process.env.PORT || 4000
 
+// Now allows multiple origins
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://localhost:3001'
+].filter(Boolean)
 
 // CORS configuration
-const cors = require('cors')
-const corsOptions = {
-    origin: "*",
+app.use(cors({
+    origin: function (origin, callback) {
+        // Checks if origin is in allowed list
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
     credentials: true,
-    optionSuccessStatus: 200
-}
-
-app.use(cors(corsOptions))
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie']
+}))
 
 app.use(express.json())
 app.use(require('cookie-parser')())
