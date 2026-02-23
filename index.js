@@ -14,7 +14,14 @@ const PORT = process.env.PORT || 4000
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Checks if origin is in allowed list
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -51,6 +58,7 @@ app.get('/auth/google', (req, res) => {
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.BACKEND_URL}/auth/google/callback&response_type=code&scope=profile email`
 
     res.redirect(googleAuthUrl)
+    console.log(googleAuthUrl)
 })
 
 // Google OAuth Callback
@@ -97,12 +105,13 @@ app.get('/auth/google/callback', async (req, res) => {
         res.cookie("jwt_token", jwtToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             path: '/'
         })
 
         // Redirect to frontend
+        console.log(`${process.env.FRONTEND_URL}/profile`)
         return res.redirect(`${process.env.FRONTEND_URL}/profile`)
         
     } catch (error) {
@@ -144,7 +153,7 @@ app.use('/albums', (req, res, next) => {
 }, albumRoutes)
 
 // Image routes (with JWT middleware applied inside the router)
-app.use('/albums', (req, res, next) => {
+app.use('/images', (req, res, next) => {
     verifyJWT(req, res, next)
 }, imageRoutes)
 
