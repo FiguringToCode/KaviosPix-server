@@ -13,24 +13,14 @@ const app = express()
 const PORT = process.env.PORT || 4000
 
 // CORS configuration
-app.use(cors({
-<<<<<<< HEAD
-    origin: function (origin, callback) {
-        // Checks if origin is in allowed list
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
-=======
-    origin: process.env.FRONTEND_URL,
->>>>>>> 95800b71faf54ff79af5cc407790a1f19a66c269
+const cors = require('cors')
+const corsOptions = {
+    origin: "*",
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Set-Cookie']
-}))
+    optionSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 
 app.use(express.json())
 app.use(require('cookie-parser')())
