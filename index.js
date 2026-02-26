@@ -5,6 +5,7 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken')
 const albumRoutes = require('./routes/album')
 const imageRoutes = require('./routes/images')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()  
 
 initializeDatabase()
@@ -12,23 +13,10 @@ initializeDatabase()
 const app = express()
 const PORT = process.env.PORT || 4000
 
-// Now allows multiple origins
-const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    'http://localhost:3000',
-    'http://localhost:3001'
-].filter(Boolean)
 
 // CORS configuration
 app.use(cors({
-    origin: function (origin, callback) {
-        // Checks if origin is in allowed list
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -36,7 +24,7 @@ app.use(cors({
 }))
 
 app.use(express.json())
-app.use(require('cookie-parser')())
+app.use(cookieParser())
 
 // JWT Verification Middleware
 const verifyJWT = (req, res, next) => {
@@ -77,13 +65,13 @@ app.get('/auth/google/callback', async (req, res) => {
 
     try {
         // Exchange code for access token
-        const params = new URLSearchParams({
+        const params = {
             client_id: process.env.GOOGLE_CLIENT_ID,
             client_secret: process.env.GOOGLE_CLIENT_SECRET,
             code,
             grant_type: "authorization_code",
             redirect_uri: `${process.env.BACKEND_URL}/auth/google/callback`
-        })
+        }
 
         const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', params, {
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
@@ -111,8 +99,8 @@ app.get('/auth/google/callback', async (req, res) => {
         // Store JWT in httpOnly cookie
         res.cookie("jwt_token", jwtToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: none,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             path: '/'
         })
@@ -121,7 +109,7 @@ app.get('/auth/google/callback', async (req, res) => {
         return res.redirect(`${process.env.FRONTEND_URL}/profile`)
         
     } catch (error) {
-        console.error(error.response?.data || error.message)
+        console.log(error.response?.data || error.message)
         res.status(400).send("OAuth exchange failed.")
     }
 })
