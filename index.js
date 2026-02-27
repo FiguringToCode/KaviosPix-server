@@ -65,15 +65,15 @@ app.get('/auth/google/callback', async (req, res) => {
 
     try {
         // Exchange code for access token
-        const params = {
+        const params = new URLSearchParams({
             client_id: process.env.GOOGLE_CLIENT_ID,
             client_secret: process.env.GOOGLE_CLIENT_SECRET,
-            code,
+            code: req.query.code,
             grant_type: "authorization_code",
             redirect_uri: `${process.env.BACKEND_URL}/auth/google/callback`
-        }
+        })
 
-        const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', params, {
+        const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
         })
 
