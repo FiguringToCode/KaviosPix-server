@@ -84,7 +84,7 @@ app.get('/auth/google/callback', async (req, res) => {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
 
-        const { email, id: userId, name, picture } = userResponse.data
+        const { email, id: userId, name, picture, iat, exp } = userResponse.data
 
         console.log('✅ User authenticated:', { email, userId, name })
 
@@ -93,7 +93,9 @@ app.get('/auth/google/callback', async (req, res) => {
             email, 
             userId, 
             name, 
-            picture 
+            picture, 
+            iat, 
+            exp 
         }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
         // Store JWT in httpOnly cookie
