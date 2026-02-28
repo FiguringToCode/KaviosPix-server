@@ -58,6 +58,9 @@ app.get('/auth/google', (req, res) => {
 
 // Google OAuth Callback
 app.get('/auth/google/callback', async (req, res) => {
+
+    console.log("Callback hit at: ", new Date().toISOString())
+
     const { code } = req.query
     if(!code){
         return res.status(400).send("Authorization code not provided.")
@@ -84,7 +87,7 @@ app.get('/auth/google/callback', async (req, res) => {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
 
-        const { email, id: userId, name, picture, iat, exp } = userResponse.data
+        const { email, id: userId, name, picture } = userResponse.data
 
         console.log('✅ User authenticated:', { email, userId, name })
 
@@ -93,9 +96,7 @@ app.get('/auth/google/callback', async (req, res) => {
             email, 
             userId, 
             name, 
-            picture, 
-            iat, 
-            exp 
+            picture,
         }, process.env.JWT_SECRET, { expiresIn: '7d' })
 
         // Store JWT in httpOnly cookie
